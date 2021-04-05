@@ -6,73 +6,31 @@ import {
 	Switch,
 	TextField,
 } from "@material-ui/core";
+import * as Cpf from "../../data/cpf.js";
 
-function formataCpf(cpf) {
-	cpf = cpf.replace(/\D/g, "");
-	if (cpf.length > 3)
-		cpf = cpf.substring(0, 3) + "." + cpf.substring(3, cpf.length); //000.000.000-00
-	if (cpf.length > 7)
-		cpf = cpf.substring(0, 7) + "." + cpf.substring(7, cpf.length);
-	if (cpf.length > 11)
-		cpf = cpf.substring(0, 11) + "-" + cpf.substring(11, cpf.length);
-	if (cpf.length > 14) cpf = cpf.substring(0, 14);
-	return cpf;
-}
 
-function validaDigito10(cpf) {
-	cpf = cpf.replace(/\D/g, "");
-	let total = 0;
-	let resto;
-	if (cpf.length === 11) {
-		for (let i = 0; i < 9; i++) total += Number.parseInt(cpf[i]) * (i + 1);
-		resto = total % 11;
-
-		if (resto === 10 || resto === 11) resto = 0;
-		if (resto === Number.parseInt(cpf[9])) return true;
-	}
-	return false;
-}
-
-function validaDigito11(cpf) {
-	cpf = cpf.replace(/\D/g, "");
-	let total = 0;
-	let resto;
-	if (cpf.length === 11) {
-		for (let i = 0; i < 10; i++) {
-			let multiplicacao = Number.parseInt(cpf[i]) * i;
-			total += multiplicacao;
-		}
-		resto = total % 11;
-
-		if (resto === 10 || resto === 11) resto = 0;
-		if (resto === Number.parseInt(cpf[10])) return true;
-	}
-	return false;
-}
-
-function validaCpf(cpf) {
-	if (!validaDigito10(cpf)) return false;
-	return validaDigito11(cpf);
-}
-
-function FormularioCadastro() {
+function FormularioCadastro({ cadastrar }) {
 	const [nome, setNome] = useState("");
 	const [sobrenome, setSobrenome] = useState("");
 	const [cpf, setCpf] = useState("");
 	const [promocoes, setPromocoes] = useState(true);
 	const [novidades, setNovidades] = useState(true);
+	const [erros, setErros] = useState({ cpf: { valido: true, texto: "" } });
 
 	return (
 		<form
 			onSubmit={(event) => {
 				event.preventDefault();
-				if (validaCpf(cpf)) {
-					console.log(nome);
-					console.log(sobrenome);
-					console.log(cpf);
-					console.log(promocoes);
-					console.log(novidades);
-				} else console.log("CPF inválido!");
+				const cpfErros = Cpf.validaCpf(cpf) ;
+				if (cpfErros.valido)
+				cadastrar({
+					nome,
+					sobrenome,
+					cpf,
+					promocoes,
+					novidades,
+				});
+				setErros({ cpf: cpfErros });
 			}}
 		>
 			<TextField
@@ -103,10 +61,13 @@ function FormularioCadastro() {
 			<TextField
 				value={cpf}
 				onChange={(event) => {
-					let tempCpf = event.target.value;
-					tempCpf = formataCpf(tempCpf);
-					setCpf(tempCpf);
+					setCpf(Cpf.formataCpf(event.target.value));
 				}}
+				onBlur={() => {
+					setErros({ cpf: Cpf.validaCpf(cpf) });
+				}}
+				error={!erros.cpf.valido}
+				helperText={erros.cpf.texto}
 				type="text"
 				id="cpf"
 				label="CPF"
@@ -117,30 +78,28 @@ function FormularioCadastro() {
 			/>
 			<FormGroup row>
 				<FormControlLabel
-					value={promocoes}
 					id="promocoes"
 					label="Promoções"
 					control={
 						<Switch
 							color="primary"
+							checked={promocoes}
 							onChange={(event) => {
 								setPromocoes(event.target.checked);
 							}}
-							defaultChecked={true}
 						/>
 					}
 				/>
 				<FormControlLabel
-					value={novidades}
 					id="novidades"
 					label="Novidades"
 					control={
 						<Switch
 							color="primary"
+							checked={novidades}
 							onChange={(event) => {
 								setNovidades(event.target.checked);
 							}}
-							defaultChecked={true}
 						/>
 					}
 				/>

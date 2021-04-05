@@ -3,11 +3,15 @@ import FormularioCadastro from "./components/FormularioCadastro";
 import "./App.css";
 import { Container } from "@material-ui/core";
 
+function cadastrar(dados) {
+	console.log(dados);
+}
+
 function App() {
 	return (
 		<Container maxWidth="sm">
 			<h1>Formulário de cadastro</h1>
-			<FormularioCadastro />
+			<FormularioCadastro cadastrar={cadastrar} />
 		</Container>
 	);
 }
