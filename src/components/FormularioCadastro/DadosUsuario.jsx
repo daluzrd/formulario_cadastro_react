@@ -1,12 +1,15 @@
 import { Button, TextField } from "@material-ui/core";
-import React from "react";
+import React, { useState } from "react";
 
-function DadosUsuario({ setEtapa }) {
+function DadosUsuario({ cadastrar }) {
+	const [email, setEmail] = useState("");
+	const [senha, setSenha] = useState("");
+
 	return (
 		<form
 			onSubmit={(event) => {
 				event.preventDefault();
-				setEtapa(1);
+				cadastrar({email, senha})
 			}}
 		>
 			<TextField
@@ -17,6 +20,8 @@ function DadosUsuario({ setEtapa }) {
 				margin="normal"
 				fullWidth
 				required
+				value={email}
+				onChange={(event) => { setEmail(event.target.value); }}
 			/>
 			<TextField
 				id="senha"
@@ -26,6 +31,7 @@ function DadosUsuario({ setEtapa }) {
 				margin="normal"
 				fullWidth
 				required
+				onChange={(event) => { setSenha(event.target.value); }}
 			/>
 			<Button type="submit" variant="contained" color="primary">
 				Cadastrar

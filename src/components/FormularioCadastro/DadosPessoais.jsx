@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
 	Button,
 	FormControlLabel,
@@ -9,29 +9,35 @@ import {
 import * as Cpf from "../../data/cpf.js";
 
 
-function DadosPessoais({ cadastrar, setEtapa }) {
+function DadosPessoais({ cadastrar }) {
 	const [nome, setNome] = useState("");
 	const [sobrenome, setSobrenome] = useState("");
 	const [cpf, setCpf] = useState("");
 	const [promocoes, setPromocoes] = useState(true);
 	const [novidades, setNovidades] = useState(true);
 	const [erros, setErros] = useState({ cpf: { valido: true, texto: "" } });
+	const [isSubmitted, setIsSubmitted] = useState(false);
+
+	useEffect(() => {
+		if(isSubmitted && erros.cpf.valido){
+			cadastrar({
+				nome,
+				sobrenome,
+				cpf,
+				promocoes,
+				novidades,
+			});
+		}
+		else 
+			setIsSubmitted(false);
+	},[isSubmitted]);//eslint-disable-line
 
 	return (
 		<form
 			onSubmit={(event) => {
-				event.preventDefault();
-				const cpfErros = Cpf.validaCpf(cpf) ;
-				if (cpfErros.valido)
-				cadastrar({
-					nome,
-					sobrenome,
-					cpf,
-					promocoes,
-					novidades,
-				});
-				setErros({ cpf: cpfErros });
-				setEtapa(2);
+				event.preventDefault();				
+				setErros({ cpf: Cpf.validaCpf(cpf) });
+				setIsSubmitted(true);
 			}}
 		>
 			<TextField
@@ -75,6 +81,7 @@ function DadosPessoais({ cadastrar, setEtapa }) {
 				variant="outlined"
 				margin="normal"
 				fullWidth
+				placeholder="___.___.___-__"
 				required={true}
 			/>
 			<FormGroup row>
